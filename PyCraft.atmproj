@@ -1,0 +1,5 @@
+Project:
+  Name: PyCraft
+  StartScenePath: Scenes\MainScene.atmscene
+  AssetsDirectory: Assets
+  ScriptsDirectory: Scripts

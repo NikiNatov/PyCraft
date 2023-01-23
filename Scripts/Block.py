@@ -19,7 +19,7 @@ class BlockType(Enum):
     Leaf = 5
     Plank = 6
     Water = 7
-    #Glass = 8
+    Glass = 8
 
 class Block:
     Type: BlockType
@@ -61,7 +61,7 @@ class Block:
         return -1
 
 TEXTURE_ATLAS_WIDTH_IN_BLOCKS: int = 4
-TEXTURE_ATLAS_HEIGHT_IN_BLOCKS: int = 2
+TEXTURE_ATLAS_HEIGHT_IN_BLOCKS: int = 3
 TEXTURE_ATLAS_BLOCK_SIZE_X: float = 1.0 / TEXTURE_ATLAS_WIDTH_IN_BLOCKS
 TEXTURE_ATLAS_BLOCK_SIZE_Y: float = 1.0 / TEXTURE_ATLAS_HEIGHT_IN_BLOCKS
 
@@ -120,6 +120,6 @@ BLOCK_TYPES: dict = {
     BlockType.Wood: Block(BlockType.Wood, 7, 7, 7, 7, 7, 7, True, False),
     BlockType.Leaf: Block(BlockType.Leaf, 2, 2, 2, 2, 2, 2, True, False),
     BlockType.Plank: Block(BlockType.Plank, 3, 3, 3, 3, 3, 3, True, False),
-    BlockType.Water: Block(BlockType.Water, 6, 6, 6, 6, 6, 6, False, True)
-    #BlockType.Glass: Block(BlockType.Glass, 49, 49, 49, 49, 49, 49, True, True),
+    BlockType.Water: Block(BlockType.Water, 6, 6, 6, 6, 6, 6, False, True),
+    BlockType.Glass: Block(BlockType.Glass, 8, 8, 8, 8, 8, 8, True, True)
 }

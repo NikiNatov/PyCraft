@@ -11,6 +11,7 @@ CLOUD_LEVEL: int = 120
 
 class Chunk:
     GridPosition: Vec2
+    World: Entity
     _BlockMap: list
     _Vertices: VertexList
     _Indices: Uint32List
@@ -19,8 +20,9 @@ class Chunk:
     _ChunkEntity : Entity
     _MeshComponent: MeshComponent
 
-    def __init__(self, gridPosition: Vec2):
+    def __init__(self, gridPosition: Vec2, world: Entity):
         self.GridPosition = gridPosition
+        self.World = world
         self._BlockMap = [[[BlockType.Air for _ in range(CHUNK_WIDTH)] for _ in range(CHUNK_HEIGHT)] for _ in range(CHUNK_WIDTH)]
         self._Vertices = VertexList()
         self._Indices = Uint32List()
@@ -41,11 +43,11 @@ class Chunk:
         self._MeshComponent.mesh.vertices = self._Vertices
         self._MeshComponent.mesh.indices = self._Indices
         self._MeshComponent.mesh.submeshes = self._Submeshes
-        self._MeshComponent.mesh.set_material(0, Material.find("Materials/BlocksMaterialSolid.atmmat"))
+        self._MeshComponent.mesh.set_material(0, self.World.get_script().BlockSolidMaterial)
         if len(self._Submeshes) > 1:
-            self._MeshComponent.mesh.set_material(1, Material.find("Materials/BlocksMaterialTransparent.atmmat"))
+            self._MeshComponent.mesh.set_material(1, self.World.get_script().BlockTransparentMaterial)
         if len(self._Submeshes) > 2:
-            self._MeshComponent.mesh.set_material(2, Material.find("Materials/BlocksMaterialTransparent.atmmat"))
+            self._MeshComponent.mesh.set_material(2, self.World.get_script().BlockTransparentMaterial)
         self._MeshComponent.mesh.update_gpu_data(True)
 
     def create_block_map(self) -> None:

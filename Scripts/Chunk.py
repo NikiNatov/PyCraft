@@ -39,7 +39,7 @@ class Chunk:
         self._ChunkEntity.transform.translation = Vec3(self.GridPosition[0] * CHUNK_WIDTH, 0.0, self.GridPosition[1] * CHUNK_WIDTH)
         self._MeshComponent = self._ChunkEntity.add_mesh_component()
 
-    def create_mesh(self):
+    def create_mesh(self) -> None:
         self._MeshComponent.mesh = Mesh()
         self._MeshComponent.mesh.set_positions(self._Positions)
         self._MeshComponent.mesh.set_uvs(self._UVs)

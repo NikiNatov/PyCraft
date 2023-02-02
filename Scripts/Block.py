@@ -32,7 +32,7 @@ class Block:
     RightFaceTexture: int
 
     def __init__(self, type: BlockType, backFaceTexID: int, frontFaceTexID: int, topFaceTexID: int,
-                bottomFaceTexID: int, leftFaceTexID: int, rightFaceTexID: int, isSolid: bool, isTransparent: bool):
+                bottomFaceTexID: int, leftFaceTexID: int, rightFaceTexID: int, isSolid: bool, isTransparent: bool) -> None:
         self.Type = type
         self.BackFaceTexture = backFaceTexID
         self.FrontFaceTexture = frontFaceTexID

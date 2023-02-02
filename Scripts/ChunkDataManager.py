@@ -20,7 +20,7 @@ class ChunkData:
     TransparentIndices: list
     WaterIndices: list
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.BlockMap = []
         self.Positions = []
         self.UVs = []
@@ -41,7 +41,7 @@ class ChunkDataManager:
     _ProcessInputQueue: multiprocessing.Queue = multiprocessing.Queue()
     _ProcessOutputQueue: multiprocessing.Queue = multiprocessing.Queue()
 
-    def initialize(seed: int, octaves: int, scale: float, persistance: float, lacunarity: float):
+    def initialize(seed: int, octaves: int, scale: float, persistance: float, lacunarity: float) -> None:
         ChunkDataManager.Seed = seed
         ChunkDataManager.Octaves = octaves
         ChunkDataManager.Scale = max(scale, 0.001)
@@ -53,7 +53,7 @@ class ChunkDataManager:
             process.start()
             ChunkDataManager._DataGenProcesses.append(process)
 
-    def shutdown():
+    def shutdown() -> None:
         # Insert None inputs so that the the processes exit their while True loop
         for _ in range(len(ChunkDataManager._DataGenProcesses)):
             ChunkDataManager._ProcessInputQueue.put(None)

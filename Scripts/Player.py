@@ -10,7 +10,7 @@ class Player(Entity):
     _PrevMousePos: Vec2
     _Velocity: Vec3
 
-    def __init__(self, entityID: int):
+    def __init__(self, entityID: int) -> None:
         super().__init__(entityID)
         self.JumpForce = 10.0
         self.GravityForce = -20.0

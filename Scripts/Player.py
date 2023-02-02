@@ -21,7 +21,6 @@ class Player(Entity):
         self._Velocity = Vec3(0.0, 0.0, 0.0)
 
     def on_create(self) -> None:
-        self.transform.translation = Vec3(8, 60, 8)
         pass
 
     def on_update(self, ts: Timestep) -> None:

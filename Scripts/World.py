@@ -19,7 +19,7 @@ class World(Entity):
         
     def on_create(self) -> None:
         ChunkDataManager.initialize(1214141532, 4, 20.0, 0.5, 2.0)
-        self.Player.transform.translation = Vec3(100, 60, 100)
+        self.Player.transform.translation = Vec3(0, 30, 0)
 
         playerChunkX: int = int(self.Player.transform.translation.x / CHUNK_WIDTH)
         playerChunkY: int = int(self.Player.transform.translation.z / CHUNK_WIDTH)
@@ -64,8 +64,7 @@ class World(Entity):
             chunkCoords: tuple = result[0]
             chunkData: ChunkData = result[1]
             if chunkCoords in self._ActiveChunks:
-                self._ActiveChunks[chunkCoords].update_mesh_data(chunkData)
-                self._ActiveChunks[chunkCoords].create_mesh()
+                self._ActiveChunks[chunkCoords].update_data(chunkData)
 
     def on_destroy(self) -> None:
         self._ActiveChunks.clear()

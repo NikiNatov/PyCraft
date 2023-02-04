@@ -26,8 +26,9 @@ class Camera(Entity):
     
                 Input.set_mouse_position(self._PrevMousePos)
     
-                self.Player.transform.rotation.y -= Math.radians(mouseDelta.x * self.RotationSpeed * ts.get_seconds())
                 self.transform.rotation.x -= Math.radians(mouseDelta.y * self.RotationSpeed * ts.get_seconds())
+                self.transform.rotation.y -= Math.radians(mouseDelta.x * self.RotationSpeed * ts.get_seconds())
+                self.Player.transform.rotation.y = self.transform.rotation.y
     
                 if self.transform.rotation.x > Math.radians(89.0):
                     self.transform.rotation.x = Math.radians(89.0)

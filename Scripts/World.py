@@ -1,6 +1,7 @@
 from Atom import * 
 from Chunk import *
 from ChunkDataManager import *
+import Utils
 
 class World(Entity):
     BlockSolidMaterial: Material
@@ -33,7 +34,7 @@ class World(Entity):
         for i in range(gridSize ** 2):
             if (-gridSize / 2 < x <= gridSize / 2) and (-gridSize / 2 < y <= gridSize / 2):
                 self._ActiveChunks[(x + playerChunkX, y + playerChunkY)] = Chunk((x + playerChunkX, y + playerChunkY), self)
-                ChunkDataManager.enqueue_for_update((x + playerChunkX, y + playerChunkY), True)
+                ChunkDataManager.enqueue_for_update((x + playerChunkX, y + playerChunkY), None)
             if x == y or (x < 0 and x == -y) or (x > 0 and x == 1 - y):
                 dx, dy = -dy, dx
             x, y = x + dx, y + dy
@@ -56,11 +57,11 @@ class World(Entity):
             for y in range(playerChunkY - self.ChunkRenderDistance, playerChunkY + self.ChunkRenderDistance):
                 if (x, y) not in self._ActiveChunks:
                     self._ActiveChunks[(x, y)] = Chunk((x, y), self)
-                    ChunkDataManager.enqueue_for_update((x, y), True)
+                    ChunkDataManager.enqueue_for_update((x, y), None)
 
         # Process one chunk per frame
         result: tuple = ChunkDataManager.get_ready_chunk_data()
-        if result != None:
+        if result is not None:
             chunkCoords: tuple = result[0]
             chunkData: ChunkData = result[1]
             if chunkCoords in self._ActiveChunks:
@@ -69,3 +70,19 @@ class World(Entity):
     def on_destroy(self) -> None:
         self._ActiveChunks.clear()
         ChunkDataManager.shutdown()
+
+    def get_chunk_at_position(self, worldPosition: Vec3) -> Chunk:
+        chunkGridCoords: Vec2 = Utils.get_chunk_grid_coordinates(worldPosition)
+        return self._ActiveChunks[(chunkGridCoords.x, chunkGridCoords.y)] if (chunkGridCoords.x, chunkGridCoords.y) in self._ActiveChunks else None
+
+    def set_block_at_position(self, worldPosition: Vec3, blockType: BlockType) -> None:
+        blockCoords: Vec3 = Utils.get_block_coordinates_in_chunk(worldPosition)
+        chunk: Chunk = self.get_chunk_at_position(worldPosition)
+        if chunk is not None:
+            chunk.set_block(int(blockCoords.x), int(blockCoords.y), int(blockCoords.z), blockType)
+            ChunkDataManager.enqueue_for_update(chunk.GridPosition, chunk._BlockMap)
+
+    def get_block_at_position(self, worldPosition: Vec3) -> BlockType:
+        blockCoords: Vec3 = Utils.get_block_coordinates_in_chunk(worldPosition)
+        chunk: Chunk = self.get_chunk_at_position(worldPosition)
+        return chunk.get_block(int(blockCoords.x), int(blockCoords.y), int(blockCoords.z)) if chunk is not None else BlockType.Air

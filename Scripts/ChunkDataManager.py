@@ -1,13 +1,8 @@
 from Noise import *
-from Block import *
+from GameConstants import *
 import random
 import multiprocessing
 import operator
-
-CHUNK_WIDTH: int = 16
-CHUNK_HEIGHT: int = 50
-VOID_LEVEL: int = 0
-WATER_LEVEL: int = 20
 
 class ChunkData:
     BlockMap: list
@@ -63,8 +58,8 @@ class ChunkDataManager:
 
         ChunkDataManager._DataGenProcesses.clear()
 
-    def enqueue_for_update(chunkCoords: tuple, generateBlockMap: bool) -> None:
-        ChunkDataManager._ProcessInputQueue.put((chunkCoords, generateBlockMap))
+    def enqueue_for_update(chunkCoords: tuple, chunkBlockMap: list) -> None:
+        ChunkDataManager._ProcessInputQueue.put((chunkCoords, chunkBlockMap))
 
     def get_ready_chunk_data() -> ChunkData:
         try:
@@ -76,16 +71,16 @@ class ChunkDataManager:
     def _chunk_data_generation_loop(inputQueue: multiprocessing.Queue, outputQueue: multiprocessing.Queue) -> None:
         while True:
             result: tuple = inputQueue.get()
-            if result == None:
+            if result is None:
                 break
             chunkCoords: tuple = result[0]
-            generateBlockMap: bool = result[1]
-            chunkData: ChunkData = ChunkDataManager._generate_chunk_data(chunkCoords, generateBlockMap)
+            chunkBlockMap: list = result[1]
+            chunkData: ChunkData = ChunkDataManager._generate_chunk_data(chunkCoords, chunkBlockMap)
             outputQueue.put((chunkCoords, chunkData))
 
-    def _generate_chunk_data(chunkGridCoords: tuple, generateBlockMap: bool) -> ChunkData:
+    def _generate_chunk_data(chunkGridCoords: tuple, chunkBlockMap: list) -> ChunkData:
         chunkData: ChunkData = ChunkData()
-        if generateBlockMap:
+        if chunkBlockMap is None:
             heightMap: list = [0.0] * CHUNK_WIDTH * CHUNK_WIDTH
             for y in range(CHUNK_WIDTH):
                 for x in range(CHUNK_WIDTH):
@@ -104,51 +99,54 @@ class ChunkDataManager:
                         frequency *= ChunkDataManager.Lacunarity
                     totalValue /= normalization   
                     heightMap[y * CHUNK_WIDTH + x] = int(totalValue * (CHUNK_HEIGHT - 10))
+
             chunkData.BlockMap = [[[BlockType.Air for _ in range(CHUNK_WIDTH)] for _ in range(CHUNK_HEIGHT)] for _ in range(CHUNK_WIDTH)]
 
-        for x in range(CHUNK_WIDTH):
-            for z in range(CHUNK_WIDTH):
-                for y in range(CHUNK_HEIGHT):
-                    if y > heightMap[z * CHUNK_WIDTH + x] and y > WATER_LEVEL and chunkData.BlockMap[x][y][z] != BlockType.Wood and chunkData.BlockMap[x][y][z] != BlockType.Leaf:
-                        chunkData.BlockMap[x][y][z] = BlockType.Air
-                    elif y == WATER_LEVEL and y > heightMap[z * CHUNK_WIDTH + x]:
-                        chunkData.BlockMap[x][y][z] = BlockType.Water
-                    elif y > heightMap[z * CHUNK_WIDTH + x] and y < WATER_LEVEL:
-                        chunkData.BlockMap[x][y][z] = BlockType.Air
-                    elif y == heightMap[z * CHUNK_WIDTH + x] and y < WATER_LEVEL + 2:
-                        chunkData.BlockMap[x][y][z] = BlockType.Sand
-                    elif y == heightMap[z * CHUNK_WIDTH + x]:
-                        chunkData.BlockMap[x][y][z] = BlockType.Grass
+            for x in range(CHUNK_WIDTH):
+                for z in range(CHUNK_WIDTH):
+                    for y in range(CHUNK_HEIGHT):
+                        if y > heightMap[z * CHUNK_WIDTH + x] and y > WATER_LEVEL and chunkData.BlockMap[x][y][z] != BlockType.Wood and chunkData.BlockMap[x][y][z] != BlockType.Leaf:
+                            chunkData.BlockMap[x][y][z] = BlockType.Air
+                        elif y == WATER_LEVEL and y > heightMap[z * CHUNK_WIDTH + x]:
+                            chunkData.BlockMap[x][y][z] = BlockType.Water
+                        elif y > heightMap[z * CHUNK_WIDTH + x] and y < WATER_LEVEL:
+                            chunkData.BlockMap[x][y][z] = BlockType.Air
+                        elif y == heightMap[z * CHUNK_WIDTH + x] and y < WATER_LEVEL + 2:
+                            chunkData.BlockMap[x][y][z] = BlockType.Sand
+                        elif y == heightMap[z * CHUNK_WIDTH + x]:
+                            chunkData.BlockMap[x][y][z] = BlockType.Grass
 
-                        # Trees
-                        if x >= 3 and x <= CHUNK_WIDTH - 3 and z >= 3 and z <= CHUNK_WIDTH - 3:
-                            value: int = random.randint(1, 95)
-                            if value > 92:
-                                treeHeight: int = random.randint(4, 6)
+                            # Trees
+                            if x >= 3 and x <= CHUNK_WIDTH - 3 and z >= 3 and z <= CHUNK_WIDTH - 3:
+                                value: int = random.randint(1, 95)
+                                if value > 92:
+                                    treeHeight: int = random.randint(4, 6)
 
-                                # Trunk
-                                for i in range(treeHeight):
-                                    chunkData.BlockMap[x][y + i + 1][z] = BlockType.Wood
+                                    # Trunk
+                                    for i in range(treeHeight):
+                                        chunkData.BlockMap[x][y + i + 1][z] = BlockType.Wood
 
-                                # Crown
-                                for i in range(x - 2, x + 3):
-                                    for j in range(z - 2, z + 3):
-                                        chunkData.BlockMap[i][y + treeHeight + 1][j] = BlockType.Leaf
-                                        chunkData.BlockMap[i][y + treeHeight + 2][j] = BlockType.Leaf
+                                    # Crown
+                                    for i in range(x - 2, x + 3):
+                                        for j in range(z - 2, z + 3):
+                                            chunkData.BlockMap[i][y + treeHeight + 1][j] = BlockType.Leaf
+                                            chunkData.BlockMap[i][y + treeHeight + 2][j] = BlockType.Leaf
 
-                                for i in range(x - 1, x + 2):
-                                    for j in range(z - 1, z + 2):
-                                        chunkData.BlockMap[i][y + treeHeight + 3][j] = BlockType.Leaf
+                                    for i in range(x - 1, x + 2):
+                                        for j in range(z - 1, z + 2):
+                                            chunkData.BlockMap[i][y + treeHeight + 3][j] = BlockType.Leaf
 
-                                for i in range(x - 1, x + 2):
-                                    chunkData.BlockMap[i][y + treeHeight + 3][z] = BlockType.Leaf
+                                    for i in range(x - 1, x + 2):
+                                        chunkData.BlockMap[i][y + treeHeight + 3][z] = BlockType.Leaf
 
-                                for i in range(z - 1, z + 2):
-                                    chunkData.BlockMap[x][y + treeHeight + 3][i] = BlockType.Leaf
-                    elif y < heightMap[z * CHUNK_WIDTH + x] and y >= heightMap[z * CHUNK_WIDTH + x] - 5:
-                        chunkData.BlockMap[x][y][z] = BlockType.Dirt
-                    elif y <= heightMap[z * CHUNK_WIDTH + x] - 5:
-                        chunkData.BlockMap[x][y][z] = BlockType.Stone
+                                    for i in range(z - 1, z + 2):
+                                        chunkData.BlockMap[x][y + treeHeight + 3][i] = BlockType.Leaf
+                        elif y < heightMap[z * CHUNK_WIDTH + x] and y >= heightMap[z * CHUNK_WIDTH + x] - 5:
+                            chunkData.BlockMap[x][y][z] = BlockType.Dirt
+                        elif y <= heightMap[z * CHUNK_WIDTH + x] - 5:
+                            chunkData.BlockMap[x][y][z] = BlockType.Stone
+        else:
+            chunkData.BlockMap = chunkBlockMap
         
         # Generate the mesh data
         totalIndexCount: int = 0
@@ -218,6 +216,7 @@ class ChunkDataManager:
                                     chunkData.Positions.append(tuple(map(operator.add, position, VERTEX_POSITIONS[FACE_INDICES[face][3]])))
                 
                                     # Texture coords
+                                    print(BLOCK_TYPES[blockType])
                                     textureID: int = BLOCK_TYPES[blockType].get_texture_id(BlockFace(face))
                                     u: float = (textureID % TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_X
                                     v: float = int(textureID / TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_Y

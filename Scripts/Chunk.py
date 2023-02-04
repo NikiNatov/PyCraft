@@ -27,7 +27,8 @@ class Chunk:
 
     def update_data(self, chunkData: ChunkData) -> None:
         # Init the block map
-        self._BlockMap = chunkData.BlockMap
+        if len(chunkData.BlockMap) > 0:
+            self._BlockMap = chunkData.BlockMap
 
         # Create index array
         indices: list = []
@@ -82,6 +83,10 @@ class Chunk:
         if len(submeshes) > 2:
             self._MeshComponent.mesh.set_material(2, self.World.BlockTransparentMaterial)
         self._MeshComponent.mesh.update_gpu_data(True)
+
+    def set_block(self, x: int, y: int, z: int, blockType: BlockType) -> None:
+        if self._is_block_in_chunk(x, y, z):
+            self._BlockMap[x][y][z] = blockType
 
     def get_block(self, x: int, y: int, z: int) -> BlockType:
         if self._is_block_in_chunk(x, y, z):

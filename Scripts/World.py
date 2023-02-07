@@ -19,7 +19,8 @@ class World(Entity):
         self._ActiveChunks = dict()
         
     def on_create(self) -> None:
-        ChunkDataManager.initialize(1214141532, 4, 20.0, 0.5, 2.0)
+        TerrainGenerator.Seed = 1214141532
+        ChunkDataManager.initialize()
         self.Player.transform.translation = Vec3(0, 30, 0)
 
         playerChunkX: int = int(self.Player.transform.translation.x / CHUNK_WIDTH)

@@ -32,49 +32,49 @@ class Chunk:
 
         # Create index array
         indices: list = []
-        indices.extend(chunkData.SolidIndices)
-        indices.extend(chunkData.TransparentIndices)
-        indices.extend(chunkData.WaterIndices)
+        indices.extend(chunkData.Mesh.SolidIndices)
+        indices.extend(chunkData.Mesh.TransparentIndices)
+        indices.extend(chunkData.Mesh.WaterIndices)
 
         # Create submeshes
         submeshes: list = []
         currentIndexCount: int = 0
-        vertexCount: int = len(chunkData.Positions)
+        vertexCount: int = len(chunkData.Mesh.Positions)
         solidSubmesh: Submesh = Submesh()
         solidSubmesh.start_vertex = 0
         solidSubmesh.vertex_count = vertexCount
         solidSubmesh.start_index = currentIndexCount
-        solidSubmesh.index_count = len(chunkData.SolidIndices)
+        solidSubmesh.index_count = len(chunkData.Mesh.SolidIndices)
         solidSubmesh.material_index = 0
         submeshes.append(solidSubmesh)
-        currentIndexCount += len(chunkData.SolidIndices)
+        currentIndexCount += len(chunkData.Mesh.SolidIndices)
 
-        if len(chunkData.TransparentIndices) > 0:
+        if len(chunkData.Mesh.TransparentIndices) > 0:
             transparentSubmesh: Submesh = Submesh()
             transparentSubmesh.start_vertex = 0
             transparentSubmesh.vertex_count = vertexCount
             transparentSubmesh.start_index = currentIndexCount
-            transparentSubmesh.index_count = len(chunkData.TransparentIndices)
+            transparentSubmesh.index_count = len(chunkData.Mesh.TransparentIndices)
             transparentSubmesh.material_index = len(submeshes)
             submeshes.append(transparentSubmesh)
-            currentIndexCount += len(chunkData.TransparentIndices)
+            currentIndexCount += len(chunkData.Mesh.TransparentIndices)
 
-        if len(chunkData.WaterIndices) > 0:
+        if len(chunkData.Mesh.WaterIndices) > 0:
             waterSubmesh: Submesh = Submesh()
             waterSubmesh.start_vertex = 0
             waterSubmesh.vertex_count = vertexCount
             waterSubmesh.start_index = currentIndexCount
-            waterSubmesh.index_count = len(chunkData.WaterIndices)
+            waterSubmesh.index_count = len(chunkData.Mesh.WaterIndices)
             waterSubmesh.material_index = len(submeshes)
             submeshes.append(waterSubmesh)
-            currentIndexCount += len(chunkData.WaterIndices)
+            currentIndexCount += len(chunkData.Mesh.WaterIndices)
 
         self._MeshComponent.mesh = Mesh()
-        self._MeshComponent.mesh.set_positions(chunkData.Positions)
-        self._MeshComponent.mesh.set_uvs(chunkData.UVs)
-        self._MeshComponent.mesh.set_normals(chunkData.Normals)
-        self._MeshComponent.mesh.set_tangents(chunkData.Tangents)
-        self._MeshComponent.mesh.set_bitangents(chunkData.Bitangents)
+        self._MeshComponent.mesh.set_positions(chunkData.Mesh.Positions)
+        self._MeshComponent.mesh.set_uvs(chunkData.Mesh.UVs)
+        self._MeshComponent.mesh.set_normals(chunkData.Mesh.Normals)
+        self._MeshComponent.mesh.set_tangents(chunkData.Mesh.Tangents)
+        self._MeshComponent.mesh.set_bitangents(chunkData.Mesh.Bitangents)
         self._MeshComponent.mesh.set_indices(indices)
         self._MeshComponent.mesh.set_submeshes(submeshes)
         self._MeshComponent.mesh.set_material(0, self.World.BlockSolidMaterial)

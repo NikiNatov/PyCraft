@@ -13,6 +13,8 @@ class Player(Entity):
     BlockBreakRange: float
     World: Entity
     Camera: Entity
+    Inventory: Entity
+    Toolbar: Entity
     _IsInAir: bool
     _IsUnderWater: bool
     _PrevMousePos: Vec2
@@ -26,6 +28,8 @@ class Player(Entity):
         self.BlockBreakRange = 5.0
         self.World = Entity(0)
         self.Camera = Entity(0)
+        self.Inventory = Entity(0)
+        self.Toolbar = Entity(0)
         self._IsInAir = False
         self._IsUnderWater = True
         self._Velocity = Vec3(0.0, 0.0, 0.0)
@@ -71,6 +75,32 @@ class Player(Entity):
                 self.break_block()
             elif event.mouse_button == MouseButton.Right:
                 self.place_block()
+        elif isinstance(event, KeyPressedEvent):
+            if event.key == Key.I:
+                if self.Inventory.is_valid():
+                    self.Inventory.get_script().toggle()
+                    Input.set_mouse_cursor(True)
+            elif event.key == Key.Key1:
+                if self.Toolbar.is_valid():
+                    self.Toolbar.get_script().set_selected_slot(0)
+            elif event.key == Key.Key2:
+                if self.Toolbar.is_valid():
+                    self.Toolbar.get_script().set_selected_slot(1)
+            elif event.key == Key.Key3:
+                if self.Toolbar.is_valid():
+                    self.Toolbar.get_script().set_selected_slot(2)
+            elif event.key == Key.Key4:
+                if self.Toolbar.is_valid():
+                    self.Toolbar.get_script().set_selected_slot(3)
+            elif event.key == Key.Key5:
+                if self.Toolbar.is_valid():
+                    self.Toolbar.get_script().set_selected_slot(4)
+            elif event.key == Key.Key6:
+                if self.Toolbar.is_valid():
+                    self.Toolbar.get_script().set_selected_slot(5)
+            elif event.key == Key.Key7:
+                if self.Toolbar.is_valid():
+                    self.Toolbar.get_script().set_selected_slot(6)
 
     def break_block(self) -> None:
         world: World = self.World.get_script()
@@ -98,7 +128,7 @@ class Player(Entity):
             blockType: BlockType = world.get_block_at_position(blockCoords)
             if blockType != BlockType.Air and blockType != BlockType.Water:
                 if Math.distance(prevCoords, self.transform.translation) >= 1.8:
-                    world.set_block_at_position(prevCoords, BlockType.Wood)
+                    world.set_block_at_position(prevCoords, self.Toolbar.get_script().get_selected_slot_block())
                 break
             prevCoords = blockCoords
         

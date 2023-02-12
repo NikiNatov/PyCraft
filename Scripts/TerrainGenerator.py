@@ -1,5 +1,6 @@
 from Noise import *
 from GameConstants import *
+from Block import *
 import random
 import operator
 
@@ -120,13 +121,7 @@ class TerrainGenerator:
                                 meshData.Positions.append(tuple(map(operator.add, (position[0], (position[1] - 0.2) if face == 2 else (position[1] + 0.8), position[2]), VERTEX_POSITIONS[FACE_INDICES[face][3]])))
 
                                 # Texture coords
-                                textureID: int = BLOCK_TYPES[blockType].get_texture_id(BlockFace(face))
-                                u: float = (textureID % TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_X
-                                v: float = int(textureID / TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_Y
-                                meshData.UVs.append((u, v))
-                                meshData.UVs.append((u, v + TEXTURE_ATLAS_BLOCK_SIZE_Y))
-                                meshData.UVs.append((u + TEXTURE_ATLAS_BLOCK_SIZE_X, v))
-                                meshData.UVs.append((u + TEXTURE_ATLAS_BLOCK_SIZE_X, v + TEXTURE_ATLAS_BLOCK_SIZE_Y))
+                                meshData.UVs.extend(BLOCK_TYPES[blockType].calculate_uvs(BlockFace(face)))
 
                                 # Normals
                                 meshData.Normals.append(FACE_NORMALS[face])
@@ -168,14 +163,7 @@ class TerrainGenerator:
                                     meshData.Positions.append(tuple(map(operator.add, position, VERTEX_POSITIONS[FACE_INDICES[face][3]])))
 
                                     # Texture coords
-                                    print(BLOCK_TYPES[blockType])
-                                    textureID: int = BLOCK_TYPES[blockType].get_texture_id(BlockFace(face))
-                                    u: float = (textureID % TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_X
-                                    v: float = int(textureID / TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_Y
-                                    meshData.UVs.append((u, v))
-                                    meshData.UVs.append((u, v + TEXTURE_ATLAS_BLOCK_SIZE_Y))
-                                    meshData.UVs.append((u + TEXTURE_ATLAS_BLOCK_SIZE_X, v))
-                                    meshData.UVs.append((u + TEXTURE_ATLAS_BLOCK_SIZE_X, v + TEXTURE_ATLAS_BLOCK_SIZE_Y))
+                                    meshData.UVs.extend(BLOCK_TYPES[blockType].calculate_uvs(BlockFace(face)))
 
                                     # Normals
                                     meshData.Normals.append(FACE_NORMALS[face])

@@ -1,5 +1,3 @@
-from Block import *
-
 CHUNK_WIDTH: int = 16
 CHUNK_HEIGHT: int = 50
 VOID_LEVEL: int = 0
@@ -56,15 +54,3 @@ FACE_INDICES: list = [
     [ 4, 7, 0, 3 ], # Left Face
     [ 1, 2, 5, 6 ]  # Right Face
 ]
-
-BLOCK_TYPES: dict = {
-    BlockType.Grass: Block(BlockType.Grass, 1, 1, 1, 1, 1, 1, True, False),
-    BlockType.Dirt: Block(BlockType.Dirt, 0, 0, 0, 0, 0, 0, True, False),
-    BlockType.Stone: Block(BlockType.Stone, 4, 4, 4, 4, 4, 4, True, False),
-    BlockType.Sand: Block(BlockType.Sand, 5, 5, 5, 5, 5, 5, True, False),
-    BlockType.Wood: Block(BlockType.Wood, 7, 7, 7, 7, 7, 7, True, False),
-    BlockType.Leaf: Block(BlockType.Leaf, 2, 2, 2, 2, 2, 2, True, False),
-    BlockType.Plank: Block(BlockType.Plank, 3, 3, 3, 3, 3, 3, True, False),
-    BlockType.Water: Block(BlockType.Water, 6, 6, 6, 6, 6, 6, False, True),
-    BlockType.Glass: Block(BlockType.Glass, 8, 8, 8, 8, 8, 8, True, True)
-}

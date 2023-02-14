@@ -1,25 +1,21 @@
 from Atom import *
 from GameConstants import *
 import sys
+import math
 
 def get_block_coordinates_in_chunk(blockWorldPosition: Vec3) -> Vec3:
     return Vec3(
-        (CHUNK_WIDTH + (int(blockWorldPosition.x) % CHUNK_WIDTH)) % CHUNK_WIDTH,
-		(CHUNK_HEIGHT + (int(blockWorldPosition.y) % CHUNK_HEIGHT)) % CHUNK_HEIGHT,
-		(CHUNK_WIDTH + (int(blockWorldPosition.z) % CHUNK_WIDTH)) % CHUNK_WIDTH
+        # We need to use math.fmod() for the C-style mod here instead of % to get the correct result
+        math.fmod(CHUNK_WIDTH + math.fmod(Math.floor(blockWorldPosition.x), CHUNK_WIDTH), CHUNK_WIDTH),
+        math.fmod(CHUNK_HEIGHT + math.fmod(Math.floor(blockWorldPosition.y), CHUNK_HEIGHT), CHUNK_HEIGHT),
+        math.fmod(CHUNK_WIDTH + math.fmod(Math.floor(blockWorldPosition.z), CHUNK_WIDTH), CHUNK_WIDTH)
     )
 
 def get_block_coordinates(blockWorldPosition: Vec3) -> Vec3:
-    return Vec3(
-        int(Math.floor(blockWorldPosition.x)),
-        int(Math.floor(blockWorldPosition.y)),
-        int(Math.floor(blockWorldPosition.z))
-    )
+    return Vec3(Math.floor(blockWorldPosition.x), Math.floor(blockWorldPosition.y), Math.floor(blockWorldPosition.z))
 
 def get_chunk_grid_coordinates(chunkWorldPosition: Vec3) -> Vec2:
-    x: int = int(chunkWorldPosition.x / CHUNK_WIDTH) if chunkWorldPosition.x >= 0 or int(chunkWorldPosition.x) % CHUNK_WIDTH == 0 else int(chunkWorldPosition.x / CHUNK_WIDTH - 1)
-    y: int = int(chunkWorldPosition.z / CHUNK_WIDTH) if chunkWorldPosition.z >= 0 or int(chunkWorldPosition.z) % CHUNK_WIDTH == 0 else int(chunkWorldPosition.z / CHUNK_WIDTH - 1)
-    return Vec2(x, y)
+    return Vec2(Math.floor(chunkWorldPosition.x / CHUNK_WIDTH), Math.floor(chunkWorldPosition.z / CHUNK_WIDTH))
 
 def ray_cast(origin: Vec3, direction: Vec3, maxDistance: float) -> list:
     # Raycasting algorithm:

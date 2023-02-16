@@ -14,8 +14,8 @@ class ChunkDataManager:
     _ProcessInputQueue: multiprocessing.Queue = multiprocessing.Queue()
     _ProcessOutputQueue: multiprocessing.Queue = multiprocessing.Queue()
 
-    def initialize() -> None:
-        for _ in range(int(multiprocessing.cpu_count() / 2)):
+    def initialize(processCount: int = int(multiprocessing.cpu_count() / 2)) -> None:
+        for _ in range(processCount):
             process: multiprocessing.Process = multiprocessing.Process(target = ChunkDataManager._chunk_data_generation_loop, args=(ChunkDataManager._ProcessInputQueue, ChunkDataManager._ProcessOutputQueue))
             process.start()
             ChunkDataManager._DataGenProcesses.append(process)
@@ -33,9 +33,9 @@ class ChunkDataManager:
     def enqueue_for_update(chunkCoords: tuple, chunkBlockMap: list) -> None:
         ChunkDataManager._ProcessInputQueue.put((chunkCoords, chunkBlockMap))
 
-    def get_ready_chunk_data() -> ChunkData:
+    def get_ready_chunk_data(block: bool = False) -> tuple:
         try:
-            value = ChunkDataManager._ProcessOutputQueue.get_nowait()
+            value = ChunkDataManager._ProcessOutputQueue.get(block)
             return value
         except:
             return None

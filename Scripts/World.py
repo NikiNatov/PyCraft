@@ -32,7 +32,7 @@ class World(Entity):
         dx: int = 0
         dy: int = -1
         gridSize: int = self.ChunkRenderDistance * 2
-        for i in range(gridSize ** 2):
+        for _ in range(gridSize ** 2):
             if (-gridSize / 2 < x <= gridSize / 2) and (-gridSize / 2 < y <= gridSize / 2):
                 self._ActiveChunks[(x + playerChunkX, y + playerChunkY)] = Chunk((x + playerChunkX, y + playerChunkY), self)
                 ChunkDataManager.enqueue_for_update((x + playerChunkX, y + playerChunkY), None)
@@ -87,3 +87,9 @@ class World(Entity):
         blockCoords: Vec3 = Utils.get_block_coordinates_in_chunk(worldPosition)
         chunk: Chunk = self.get_chunk_at_position(worldPosition)
         return chunk.get_block(int(blockCoords.x), int(blockCoords.y), int(blockCoords.z)) if chunk is not None else BlockType.Air
+    
+    def is_block_solid(self, worldPosition: Vec3) -> bool:
+        blockType: BlockType = self.get_block_at_position(worldPosition)
+        if BLOCK_TYPES.get(blockType) is None:
+            return False
+        return BLOCK_TYPES[blockType].IsSolid

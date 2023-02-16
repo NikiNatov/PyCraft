@@ -171,15 +171,27 @@ class Player(Entity):
     def _check_collision_up(self) -> bool:
         playerPos: Vec3 = self.transform.translation
         world: World = self.World.get_script()
-        return (world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)) or
-                world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) or
-                world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) or
-                world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)))
+        # We have to make sure we are actually above above the block when we check the 4 corners otherwise we can get stuck in walls.
+        # Checking for no collisions for all horizontal directions will make sure that the blocks next to us are non-solid
+        collisionLeft: bool = self._check_collision_left()
+        collisionRight: bool = self._check_collision_right()
+        collisionFront: bool = self._check_collision_front()
+        collisionBack: bool = self._check_collision_back()
+        return ((world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)) and not collisionLeft and not collisionBack) or
+                (world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) and not collisionRight and not collisionFront) or
+                (world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) and not collisionLeft and not collisionFront) or
+                (world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y + self.BoundingBox.y * 0.20 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)) and not collisionRight and not collisionBack))
     
     def _check_collision_down(self) -> bool:
         playerPos: Vec3 = self.transform.translation
         world: World = self.World.get_script()
-        return (world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)) or
-                world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) or
-                world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) or
-                world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)))
+        # We have to make sure we are actually above above the block when we check the 4 corners otherwise we can get stuck in walls.
+        # Checking for no collisions for all horizontal directions will make sure that the blocks next to us are non-solid
+        collisionLeft: bool = self._check_collision_left()
+        collisionRight: bool = self._check_collision_right()
+        collisionFront: bool = self._check_collision_front()
+        collisionBack: bool = self._check_collision_back()
+        return ((world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)) and not collisionLeft and not collisionBack) or
+                (world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) and not collisionRight and not collisionFront) or
+                (world.is_block_solid(Vec3(playerPos.x - self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z + self.BoundingBox.z / 2.0)) and not collisionLeft and not collisionFront) or
+                (world.is_block_solid(Vec3(playerPos.x + self.BoundingBox.x / 2.0, playerPos.y - self.BoundingBox.y * 0.80 + self._Velocity.y, playerPos.z - self.BoundingBox.z / 2.0)) and not collisionRight and not collisionBack))

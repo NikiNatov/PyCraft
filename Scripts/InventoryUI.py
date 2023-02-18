@@ -9,6 +9,7 @@ class InventoryUI(Entity):
     SlotSize: float
     Rows: int
     Columns: int
+    PauseMenu: Entity
     _IsOpened: bool
     _ItemSlots: list
 
@@ -20,6 +21,7 @@ class InventoryUI(Entity):
         self.SlotSize = 40.0
         self.Rows = 7
         self.Columns = 7
+        self.PauseMenu = Entity(0)
         self._IsOpened = False
         self._ItemSlots = []
 
@@ -34,8 +36,9 @@ class InventoryUI(Entity):
             itemSpacing: int = 4
             GUI.begin_child_window("Inventory", self.InventorySize, Vec2(viewportSize.x / 2.0 - self.InventorySize.x / 2.0, viewportSize.y / 2.0 - self.InventorySize.y / 2.0))
             GUI.text("Inventory", Vec2(itemSpacing + 5.0, itemSpacing))
+
             if GUI.button("X", Vec2(self.CloseButtonSize, self.CloseButtonSize), Vec2(GUI.get_window_size().x - self.CloseButtonSize, 0)):
-                self._IsOpened = False
+                self.toggle()
 
             for j in range(self.Rows):
                 for i in range(int(-self.Columns / 2.0), int(self.Columns / 2.0) + 1):
@@ -64,5 +67,16 @@ class InventoryUI(Entity):
 
             GUI.end_child_window()
 
+    def on_event(self, event: Event):
+        if isinstance(event, KeyPressedEvent):
+            if event.key == Key.I:
+                if self.PauseMenu.is_valid() and self.PauseMenu.get_script().is_opened():
+                    self.PauseMenu.get_script().toggle()
+                self.toggle()
+
+    def is_opened(self) -> bool:
+        return self._IsOpened
+
     def toggle(self) -> None:
         self._IsOpened = not self._IsOpened
+        Input.set_mouse_cursor(self._IsOpened)

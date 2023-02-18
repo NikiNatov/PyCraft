@@ -16,6 +16,7 @@ class Player(Entity):
     Camera: Entity
     Inventory: Entity
     Toolbar: Entity
+    PauseMenu: Entity
     _VerticalForce: float
     _IsInAir: bool
     _PrevMousePos: Vec2
@@ -29,16 +30,15 @@ class Player(Entity):
         self.BoundingBox = Vec3(0.6, 1.8, 0.6)
         self.World = Entity(0)
         self.Camera = Entity(0)
-        self.Inventory = Entity(0)
         self.Toolbar = Entity(0)
         self._VerticalForce = 0.0
         self._IsInAir = True
         self._Velocity = Vec3(0.0, 0.0, 0.0)
 
-    def on_create(self) -> None:
-        pass
-
     def on_update(self, ts: Timestep) -> None:
+        if Input.is_cursor_enabled():
+            return
+
         if self._VerticalForce > GRAVITY:
             self._VerticalForce += GRAVITY * ts.get_seconds()
 
@@ -77,37 +77,15 @@ class Player(Entity):
     def on_event(self, event: Event):
         if isinstance(event, MouseButtonPressedEvent):
             if event.mouse_button == MouseButton.Left:
-                self.break_block()
+                if not Input.is_cursor_enabled():
+                    self.break_block()
             elif event.mouse_button == MouseButton.Right:
-                self.place_block()
+                if not Input.is_cursor_enabled():
+                    self.place_block()
         elif isinstance(event, KeyPressedEvent):
             if event.key == Key.Space:
-                self.jump()
-            elif event.key == Key.I:
-                if self.Inventory.is_valid():
-                    self.Inventory.get_script().toggle()
-                    Input.set_mouse_cursor(True)
-            elif event.key == Key.Key1:
-                if self.Toolbar.is_valid():
-                    self.Toolbar.get_script().set_selected_slot(0)
-            elif event.key == Key.Key2:
-                if self.Toolbar.is_valid():
-                    self.Toolbar.get_script().set_selected_slot(1)
-            elif event.key == Key.Key3:
-                if self.Toolbar.is_valid():
-                    self.Toolbar.get_script().set_selected_slot(2)
-            elif event.key == Key.Key4:
-                if self.Toolbar.is_valid():
-                    self.Toolbar.get_script().set_selected_slot(3)
-            elif event.key == Key.Key5:
-                if self.Toolbar.is_valid():
-                    self.Toolbar.get_script().set_selected_slot(4)
-            elif event.key == Key.Key6:
-                if self.Toolbar.is_valid():
-                    self.Toolbar.get_script().set_selected_slot(5)
-            elif event.key == Key.Key7:
-                if self.Toolbar.is_valid():
-                    self.Toolbar.get_script().set_selected_slot(6)
+                if not Input.is_cursor_enabled():
+                    self.jump()
 
     def jump(self) -> None:
         if not self._IsInAir:

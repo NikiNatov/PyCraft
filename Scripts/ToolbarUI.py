@@ -54,6 +54,23 @@ class ToolbarUI(Entity):
                         self._ItemSlots[slotIdx] = blockType
                     GUI.end_drag_drop_target()
 
+    def on_event(self, event: Event):
+        if isinstance(event, KeyPressedEvent):
+            if event.key == Key.Key1:
+                self.set_selected_slot(0)
+            elif event.key == Key.Key2:
+                self.set_selected_slot(1)
+            elif event.key == Key.Key3:
+                self.set_selected_slot(2)
+            elif event.key == Key.Key4:
+                self.set_selected_slot(3)
+            elif event.key == Key.Key5:
+                self.set_selected_slot(4)
+            elif event.key == Key.Key6:
+                self.set_selected_slot(5)
+            elif event.key == Key.Key7:
+                self.set_selected_slot(6)
+
     def set_selected_slot(self, slotIdx: int) -> None:
         self._SelectedSlot = slotIdx if slotIdx < len(self._ItemSlots) else 0
 

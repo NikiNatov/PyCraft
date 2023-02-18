@@ -22,48 +22,48 @@ class BlockType(Enum):
     Glass = 8
 
 class Block:
-    Type: BlockType
-    IsSolid: bool
-    IsTransparent: bool
-    BackFaceTexture: int
-    FrontFaceTexture: int
-    TopFaceTexture: int
-    BottomFaceTexture: int
-    LeftFaceTexture: int
-    RightFaceTexture: int
+    type: BlockType
+    is_solid: bool
+    is_transparent: bool
+    back_face_texture_id: int
+    front_face_texture_id: int
+    top_face_texture_id: int
+    bottom_face_texture_id: int
+    left_face_texture_id: int
+    right_face_texture_id: int
 
-    def __init__(self, type: BlockType, backFaceTexID: int, frontFaceTexID: int, topFaceTexID: int,
-                bottomFaceTexID: int, leftFaceTexID: int, rightFaceTexID: int, isSolid: bool, isTransparent: bool) -> None:
-        self.Type = type
-        self.BackFaceTexture = backFaceTexID
-        self.FrontFaceTexture = frontFaceTexID
-        self.TopFaceTexture = topFaceTexID
-        self.BottomFaceTexture = bottomFaceTexID
-        self.LeftFaceTexture = leftFaceTexID
-        self.RightFaceTexture = rightFaceTexID
-        self.IsSolid = isSolid
-        self.IsTransparent = isTransparent
+    def __init__(self, type: BlockType, back_face_texture_id: int, front_face_texture_id: int, top_face_texture_id: int,
+                bottom_face_texture_id: int, left_face_texture_id: int, right_face_texture_id: int, is_solid: bool, is_transparent: bool) -> None:
+        self.type = type
+        self.back_face_texture_id = back_face_texture_id
+        self.front_face_texture_id = front_face_texture_id
+        self.top_face_texture_id = top_face_texture_id
+        self.bottom_face_texture_id = bottom_face_texture_id
+        self.left_face_texture_id = left_face_texture_id
+        self.right_face_texture_id = right_face_texture_id
+        self.is_solid = is_solid
+        self.is_transparent = is_transparent
 
     def get_texture_id(self, face: BlockFace) -> int:
         match face:
             case BlockFace.BackFace:
-                return self.BackFaceTexture
+                return self.back_face_texture_id
             case BlockFace.FrontFace:
-                return self.FrontFaceTexture
+                return self.front_face_texture_id
             case BlockFace.TopFace:
-                return self.TopFaceTexture
+                return self.top_face_texture_id
             case BlockFace.BottomFace:
-                return self.BottomFaceTexture
+                return self.bottom_face_texture_id
             case BlockFace.LeftFace:
-                return self.LeftFaceTexture
+                return self.left_face_texture_id
             case BlockFace.RightFace:
-                return self.RightFaceTexture
+                return self.right_face_texture_id
         return -1
     
     def calculate_uvs(self, face: BlockFace) -> list:
-        textureID: int = self.get_texture_id(face)
-        u: float = (textureID % TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_X
-        v: float = int(textureID / TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_Y
+        texture_id: int = self.get_texture_id(face)
+        u: float = (texture_id % TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_X
+        v: float = int(texture_id / TEXTURE_ATLAS_WIDTH_IN_BLOCKS) * TEXTURE_ATLAS_BLOCK_SIZE_Y
         uvs: list = []
         uvs.append((u, v))
         uvs.append((u, v + TEXTURE_ATLAS_BLOCK_SIZE_Y))

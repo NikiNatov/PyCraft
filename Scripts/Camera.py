@@ -1,33 +1,33 @@
 from Atom import *
 
 class Camera(Entity):
-    RotationSpeed: float
-    Player: Entity
-    _PrevMousePos: Vec2
+    rotation_speed: float
+    player: Entity
+    _prev_mouse_pos: Vec2
 
-    def __init__(self, entityID: int):
-        super().__init__(entityID)
-        self.RotationSpeed = 7.0
-        self.Player = Entity(0)
-        self._PrevMousePos = Vec2(0.0, 0.0)
+    def __init__(self, entity_id: int):
+        super().__init__(entity_id)
+        self.rotation_speed = 7.0
+        self.player = Entity(0)
+        self._prev_mouse_pos = Vec2(0.0, 0.0)
 
     def on_create(self) -> None:
-        self._PrevMousePos = Input.get_mouse_position()
+        self._prev_mouse_pos = Input.get_mouse_position()
         Input.set_mouse_cursor(False)
 
     def on_update(self, ts: Timestep) -> None:
-        if self.Player.is_valid():
+        if self.player.is_valid():
             if Input.is_cursor_enabled():
                 return
             
-            currentMousePos: Vec2 = Input.get_mouse_position()
-            mouseDelta: Vec2 = currentMousePos - self._PrevMousePos
+            current_mouse_pos: Vec2 = Input.get_mouse_position()
+            mouse_delta: Vec2 = current_mouse_pos - self._prev_mouse_pos
 
-            Input.set_mouse_position(self._PrevMousePos)
+            Input.set_mouse_position(self._prev_mouse_pos)
 
-            self.transform.rotation.x -= Math.radians(mouseDelta.y * self.RotationSpeed * ts.get_seconds())
-            self.transform.rotation.y -= Math.radians(mouseDelta.x * self.RotationSpeed * ts.get_seconds())
-            self.Player.transform.rotation.y = self.transform.rotation.y
+            self.transform.rotation.x -= Math.radians(mouse_delta.y * self.rotation_speed * ts.get_seconds())
+            self.transform.rotation.y -= Math.radians(mouse_delta.x * self.rotation_speed * ts.get_seconds())
+            self.player.transform.rotation.y = self.transform.rotation.y
 
             if self.transform.rotation.x > Math.radians(89.0):
                 self.transform.rotation.x = Math.radians(89.0)

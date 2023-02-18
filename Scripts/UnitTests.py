@@ -1,9 +1,7 @@
 import unittest
-from Noise import *
-from GameConstants import *
-from Block import *
-from ChunkDataManager import *
-from TerrainGenerator import *
+from Noise import Noise
+from ChunkDataManager import ChunkDataManager
+from TerrainGenerator import TerrainGenerator, MeshData
 
 class TestNoise(unittest.TestCase):
     def test_perlin_noise(self):
@@ -16,54 +14,54 @@ class TestNoise(unittest.TestCase):
 
 class TestTerrainGenerator(unittest.TestCase):
     def test_generate_mesh_data(self):
-        meshData: MeshData = TerrainGenerator.generate_mesh_data(TerrainGenerator.generate_block_map((-1, -1)))
-        self.assertIsNotNone(meshData, "Invalid mesh data was returned")
-        self.assertEqual(len(meshData.Positions), 9136)
-        self.assertEqual(len(meshData.UVs), 9136)
-        self.assertEqual(len(meshData.Normals), 9136)
-        self.assertEqual(len(meshData.Tangents), 9136)
-        self.assertEqual(len(meshData.Bitangents), 9136)
-        self.assertEqual(len(meshData.SolidIndices), 10632)
-        self.assertEqual(len(meshData.WaterIndices), 3072)
-        self.assertEqual(len(meshData.TransparentIndices), 0)
+        mesh_data: MeshData = TerrainGenerator.generate_mesh_data(TerrainGenerator.generate_block_map((-1, -1)))
+        self.assertIsNotNone(mesh_data, "Invalid mesh data was returned")
+        self.assertEqual(len(mesh_data.positions), 9136)
+        self.assertEqual(len(mesh_data.uvs), 9136)
+        self.assertEqual(len(mesh_data.normals), 9136)
+        self.assertEqual(len(mesh_data.tangents), 9136)
+        self.assertEqual(len(mesh_data.bitangents), 9136)
+        self.assertEqual(len(mesh_data.solid_indices), 10632)
+        self.assertEqual(len(mesh_data.water_indices), 3072)
+        self.assertEqual(len(mesh_data.transparent_indices), 0)
 
 class TestChunkDataManager(unittest.TestCase):
     def test_chunk_data_manager(self):
         try:
             # Test initialization
             ChunkDataManager.initialize(5)
-            self.assertEqual(len(ChunkDataManager._DataGenProcesses), 5, "Process count missmatch")
-            for process in ChunkDataManager._DataGenProcesses:
+            self.assertEqual(len(ChunkDataManager._data_gen_processes), 5, "Process count missmatch")
+            for process in ChunkDataManager._data_gen_processes:
                 self.assertEqual(process.is_alive(), True, "Process was not started correctly")
 
             # Test creating chunk data with existing block map
-            blockMap: list = TerrainGenerator.generate_block_map((0, 0))
-            ChunkDataManager.enqueue_for_update((0, 0), blockMap)
-            chunkData: tuple = ChunkDataManager.get_ready_chunk_data(True)
-            self.assertIsNotNone(chunkData, "Creating chunk data failed")
-            self.assertEqual(chunkData[1].BlockMap, blockMap, "Block map is not the same as the one passed as a parameter")
-            self.assertGreater(len(chunkData[1].Mesh.Positions), 0, "Empty positions array")
-            self.assertGreater(len(chunkData[1].Mesh.UVs), 0, "Empty UVs array")
-            self.assertGreater(len(chunkData[1].Mesh.Normals), 0, "Empty normals array")
-            self.assertGreater(len(chunkData[1].Mesh.Tangents), 0, "Empty tangents array")
-            self.assertGreater(len(chunkData[1].Mesh.Bitangents), 0, "Empty bitangents array")
-            self.assertGreater(len(chunkData[1].Mesh.SolidIndices), 0, "Empty solid indices array")
+            block_map: list = TerrainGenerator.generate_block_map((0, 0))
+            ChunkDataManager.enqueue_for_update((0, 0), block_map)
+            chunk_data: tuple = ChunkDataManager.get_ready_chunk_data(True)
+            self.assertIsNotNone(chunk_data, "Creating chunk data failed")
+            self.assertEqual(chunk_data[1].block_map, block_map, "Block map is not the same as the one passed as a parameter")
+            self.assertGreater(len(chunk_data[1].mesh.positions), 0, "Empty positions array")
+            self.assertGreater(len(chunk_data[1].mesh.uvs), 0, "Empty UVs array")
+            self.assertGreater(len(chunk_data[1].mesh.normals), 0, "Empty normals array")
+            self.assertGreater(len(chunk_data[1].mesh.tangents), 0, "Empty tangents array")
+            self.assertGreater(len(chunk_data[1].mesh.bitangents), 0, "Empty bitangents array")
+            self.assertGreater(len(chunk_data[1].mesh.solid_indices), 0, "Empty solid indices array")
 
             # Test creating chunk data with no block map
             ChunkDataManager.enqueue_for_update((0, 0), None)
-            chunkData: tuple = ChunkDataManager.get_ready_chunk_data(True)
-            self.assertIsNotNone(chunkData, "Creating chunk data failed")
-            self.assertGreater(len(chunkData[1].BlockMap), 0, "Empty block map")
-            self.assertGreater(len(chunkData[1].Mesh.Positions), 0, "Empty positions array")
-            self.assertGreater(len(chunkData[1].Mesh.UVs), 0, "Empty UVs array")
-            self.assertGreater(len(chunkData[1].Mesh.Normals), 0, "Empty normals array")
-            self.assertGreater(len(chunkData[1].Mesh.Tangents), 0, "Empty tangents array")
-            self.assertGreater(len(chunkData[1].Mesh.Bitangents), 0, "Empty bitangents array")
-            self.assertGreater(len(chunkData[1].Mesh.SolidIndices), 0, "Empty solid indices array")
+            chunk_data: tuple = ChunkDataManager.get_ready_chunk_data(True)
+            self.assertIsNotNone(chunk_data, "Creating chunk data failed")
+            self.assertGreater(len(chunk_data[1].block_map), 0, "Empty block map")
+            self.assertGreater(len(chunk_data[1].mesh.positions), 0, "Empty positions array")
+            self.assertGreater(len(chunk_data[1].mesh.uvs), 0, "Empty UVs array")
+            self.assertGreater(len(chunk_data[1].mesh.normals), 0, "Empty normals array")
+            self.assertGreater(len(chunk_data[1].mesh.tangents), 0, "Empty tangents array")
+            self.assertGreater(len(chunk_data[1].mesh.bitangents), 0, "Empty bitangents array")
+            self.assertGreater(len(chunk_data[1].mesh.solid_indices), 0, "Empty solid indices array")
 
             # Test shutdown
             ChunkDataManager.shutdown()
-            self.assertEqual(len(ChunkDataManager._DataGenProcesses), 0, "Alive processes after shutdown")
+            self.assertEqual(len(ChunkDataManager._data_gen_processes), 0, "Alive processes after shutdown")
         finally:
             ChunkDataManager.shutdown()
 

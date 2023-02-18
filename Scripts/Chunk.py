@@ -1,96 +1,97 @@
 from Atom import * 
-from ChunkDataManager import *
-from Block import *
+from GameConstants import *
+from ChunkDataManager import ChunkData
+from Block import BlockType
 
 class Chunk:
-    GridPosition: tuple
-    World: Entity
-    _BlockMap: list
-    _ChunkEntity : Entity
-    _MeshComponent: MeshComponent
+    grid_position: tuple
+    world: Entity
+    _block_map: list
+    _chunk_entity : Entity
+    _mesh_component: MeshComponent
 
-    def __init__(self, gridPosition: tuple, world: Entity) -> None:
-        self.GridPosition = gridPosition
-        self.World = world
-        self._BlockMap = [[[BlockType.Air for _ in range(CHUNK_WIDTH)] for _ in range(CHUNK_HEIGHT)] for _ in range(CHUNK_WIDTH)]
-        self._ChunkEntity = Entity.create_entity("Chunk {},{}".format(self.GridPosition[0], self.GridPosition[1]))
-        self._ChunkEntity.transform.translation = Vec3(self.GridPosition[0] * CHUNK_WIDTH, 0.0, self.GridPosition[1] * CHUNK_WIDTH)
-        self._MeshComponent = self._ChunkEntity.add_mesh_component()
+    def __init__(self, grid_position: tuple, world: Entity) -> None:
+        self.grid_position = grid_position
+        self.world = world
+        self._block_map = [[[BlockType.Air for _ in range(CHUNK_WIDTH)] for _ in range(CHUNK_HEIGHT)] for _ in range(CHUNK_WIDTH)]
+        self._chunk_entity = Entity.create_entity("Chunk {},{}".format(self.grid_position[0], self.grid_position[1]))
+        self._chunk_entity.transform.translation = Vec3(self.grid_position[0] * CHUNK_WIDTH, 0.0, self.grid_position[1] * CHUNK_WIDTH)
+        self._mesh_component = self._chunk_entity.add_mesh_component()
 
     def __del__(self) -> None:
-        Entity.delete_entity(self._ChunkEntity)
+        Entity.delete_entity(self._chunk_entity)
 
     def on_create(self) -> None:
-        self._ChunkEntity = Entity.create_entity("Chunk {},{}".format(self.GridPosition[0], self.GridPosition[1]))
-        self._ChunkEntity.transform.translation = Vec3(self.GridPosition[0] * CHUNK_WIDTH, 0.0, self.GridPosition[1] * CHUNK_WIDTH)
-        self._MeshComponent = self._ChunkEntity.add_mesh_component()
+        self._chunk_entity = Entity.create_entity("Chunk {},{}".format(self.grid_position[0], self.grid_position[1]))
+        self._chunk_entity.transform.translation = Vec3(self.grid_position[0] * CHUNK_WIDTH, 0.0, self.grid_position[1] * CHUNK_WIDTH)
+        self._mesh_component = self._chunk_entity.add_mesh_component()
 
-    def update_data(self, chunkData: ChunkData) -> None:
+    def update_data(self, chunk_data: ChunkData) -> None:
         # Init the block map
-        if len(chunkData.BlockMap) > 0:
-            self._BlockMap = chunkData.BlockMap
+        if len(chunk_data.block_map) > 0:
+            self._block_map = chunk_data.block_map
 
         # Create index array
         indices: list = []
-        indices.extend(chunkData.Mesh.SolidIndices)
-        indices.extend(chunkData.Mesh.TransparentIndices)
-        indices.extend(chunkData.Mesh.WaterIndices)
+        indices.extend(chunk_data.mesh.solid_indices)
+        indices.extend(chunk_data.mesh.transparent_indices)
+        indices.extend(chunk_data.mesh.water_indices)
 
         # Create submeshes
         submeshes: list = []
-        currentIndexCount: int = 0
-        vertexCount: int = len(chunkData.Mesh.Positions)
-        solidSubmesh: Submesh = Submesh()
-        solidSubmesh.start_vertex = 0
-        solidSubmesh.vertex_count = vertexCount
-        solidSubmesh.start_index = currentIndexCount
-        solidSubmesh.index_count = len(chunkData.Mesh.SolidIndices)
-        solidSubmesh.material_index = 0
-        submeshes.append(solidSubmesh)
-        currentIndexCount += len(chunkData.Mesh.SolidIndices)
+        current_idx_count: int = 0
+        vertex_count: int = len(chunk_data.mesh.positions)
+        solid_submesh: Submesh = Submesh()
+        solid_submesh.start_vertex = 0
+        solid_submesh.vertex_count = vertex_count
+        solid_submesh.start_index = current_idx_count
+        solid_submesh.index_count = len(chunk_data.mesh.solid_indices)
+        solid_submesh.material_index = 0
+        submeshes.append(solid_submesh)
+        current_idx_count += len(chunk_data.mesh.solid_indices)
 
-        if len(chunkData.Mesh.TransparentIndices) > 0:
-            transparentSubmesh: Submesh = Submesh()
-            transparentSubmesh.start_vertex = 0
-            transparentSubmesh.vertex_count = vertexCount
-            transparentSubmesh.start_index = currentIndexCount
-            transparentSubmesh.index_count = len(chunkData.Mesh.TransparentIndices)
-            transparentSubmesh.material_index = len(submeshes)
-            submeshes.append(transparentSubmesh)
-            currentIndexCount += len(chunkData.Mesh.TransparentIndices)
+        if len(chunk_data.mesh.transparent_indices) > 0:
+            transparent_submesh: Submesh = Submesh()
+            transparent_submesh.start_vertex = 0
+            transparent_submesh.vertex_count = vertex_count
+            transparent_submesh.start_index = current_idx_count
+            transparent_submesh.index_count = len(chunk_data.mesh.transparent_indices)
+            transparent_submesh.material_index = len(submeshes)
+            submeshes.append(transparent_submesh)
+            current_idx_count += len(chunk_data.mesh.transparent_indices)
 
-        if len(chunkData.Mesh.WaterIndices) > 0:
-            waterSubmesh: Submesh = Submesh()
-            waterSubmesh.start_vertex = 0
-            waterSubmesh.vertex_count = vertexCount
-            waterSubmesh.start_index = currentIndexCount
-            waterSubmesh.index_count = len(chunkData.Mesh.WaterIndices)
-            waterSubmesh.material_index = len(submeshes)
-            submeshes.append(waterSubmesh)
-            currentIndexCount += len(chunkData.Mesh.WaterIndices)
+        if len(chunk_data.mesh.water_indices) > 0:
+            water_submesh: Submesh = Submesh()
+            water_submesh.start_vertex = 0
+            water_submesh.vertex_count = vertex_count
+            water_submesh.start_index = current_idx_count
+            water_submesh.index_count = len(chunk_data.mesh.water_indices)
+            water_submesh.material_index = len(submeshes)
+            submeshes.append(water_submesh)
+            current_idx_count += len(chunk_data.mesh.water_indices)
 
-        self._MeshComponent.mesh = Mesh()
-        self._MeshComponent.mesh.set_positions(chunkData.Mesh.Positions)
-        self._MeshComponent.mesh.set_uvs(chunkData.Mesh.UVs)
-        self._MeshComponent.mesh.set_normals(chunkData.Mesh.Normals)
-        self._MeshComponent.mesh.set_tangents(chunkData.Mesh.Tangents)
-        self._MeshComponent.mesh.set_bitangents(chunkData.Mesh.Bitangents)
-        self._MeshComponent.mesh.set_indices(indices)
-        self._MeshComponent.mesh.set_submeshes(submeshes)
-        self._MeshComponent.mesh.set_material(0, self.World.BlockSolidMaterial)
+        self._mesh_component.mesh = Mesh()
+        self._mesh_component.mesh.set_positions(chunk_data.mesh.positions)
+        self._mesh_component.mesh.set_uvs(chunk_data.mesh.uvs)
+        self._mesh_component.mesh.set_normals(chunk_data.mesh.normals)
+        self._mesh_component.mesh.set_tangents(chunk_data.mesh.tangents)
+        self._mesh_component.mesh.set_bitangents(chunk_data.mesh.bitangents)
+        self._mesh_component.mesh.set_indices(indices)
+        self._mesh_component.mesh.set_submeshes(submeshes)
+        self._mesh_component.mesh.set_material(0, self.world.block_solid_material)
         if len(submeshes) > 1:
-            self._MeshComponent.mesh.set_material(1, self.World.BlockTransparentMaterial)
+            self._mesh_component.mesh.set_material(1, self.world.block_transparent_material)
         if len(submeshes) > 2:
-            self._MeshComponent.mesh.set_material(2, self.World.BlockTransparentMaterial)
-        self._MeshComponent.mesh.update_gpu_data(True)
+            self._mesh_component.mesh.set_material(2, self.world.block_transparent_material)
+        self._mesh_component.mesh.update_gpu_data(True)
 
-    def set_block(self, x: int, y: int, z: int, blockType: BlockType) -> None:
+    def set_block(self, x: int, y: int, z: int, block_type: BlockType) -> None:
         if self._is_block_in_chunk(x, y, z):
-            self._BlockMap[x][y][z] = blockType
+            self._block_map[x][y][z] = block_type
 
     def get_block(self, x: int, y: int, z: int) -> BlockType:
         if self._is_block_in_chunk(x, y, z):
-            return self._BlockMap[x][y][z]
+            return self._block_map[x][y][z]
         return BlockType.Air
 
     def _is_block_in_chunk(self, x: int, y: int, z: int) -> bool:

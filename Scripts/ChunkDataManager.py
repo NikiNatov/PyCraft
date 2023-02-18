@@ -1,53 +1,53 @@
-from TerrainGenerator import *
+from TerrainGenerator import TerrainGenerator, MeshData
 import multiprocessing
 
 class ChunkData:
-    BlockMap: list
-    Mesh: MeshData
+    block_map: list
+    mesh: MeshData
 
     def __init__(self) -> None:
-        self.BlockMap = []
-        self.Mesh = MeshData()
+        self.block_map = []
+        self.mesh = MeshData()
 
 class ChunkDataManager:
-    _DataGenProcesses: list = []
-    _ProcessInputQueue: multiprocessing.Queue = multiprocessing.Queue()
-    _ProcessOutputQueue: multiprocessing.Queue = multiprocessing.Queue()
+    _data_gen_processes: list = []
+    _process_input_queue: multiprocessing.Queue = multiprocessing.Queue()
+    _process_output_queue: multiprocessing.Queue = multiprocessing.Queue()
 
-    def initialize(processCount: int = int(multiprocessing.cpu_count() / 2)) -> None:
-        for _ in range(processCount):
-            process: multiprocessing.Process = multiprocessing.Process(target = ChunkDataManager._chunk_data_generation_loop, args=(ChunkDataManager._ProcessInputQueue, ChunkDataManager._ProcessOutputQueue))
+    def initialize(process_count: int = int(multiprocessing.cpu_count() / 2)) -> None:
+        for _ in range(process_count):
+            process: multiprocessing.Process = multiprocessing.Process(target = ChunkDataManager._chunk_data_generation_loop, args=(ChunkDataManager._process_input_queue, ChunkDataManager._process_output_queue))
             process.start()
-            ChunkDataManager._DataGenProcesses.append(process)
+            ChunkDataManager._data_gen_processes.append(process)
 
     def shutdown() -> None:
         # Insert None inputs so that the the processes exit their while True loop
-        for _ in range(len(ChunkDataManager._DataGenProcesses)):
-            ChunkDataManager._ProcessInputQueue.put(None)
+        for _ in range(len(ChunkDataManager._data_gen_processes)):
+            ChunkDataManager._process_input_queue.put(None)
 
-        for process in ChunkDataManager._DataGenProcesses:
+        for process in ChunkDataManager._data_gen_processes:
             process.join()
 
-        ChunkDataManager._DataGenProcesses.clear()
+        ChunkDataManager._data_gen_processes.clear()
 
-    def enqueue_for_update(chunkCoords: tuple, chunkBlockMap: list) -> None:
-        ChunkDataManager._ProcessInputQueue.put((chunkCoords, chunkBlockMap))
+    def enqueue_for_update(chunk_coords: tuple, chunk_block_map: list) -> None:
+        ChunkDataManager._process_input_queue.put((chunk_coords, chunk_block_map))
 
     def get_ready_chunk_data(block: bool = False) -> tuple:
         try:
-            value = ChunkDataManager._ProcessOutputQueue.get(block)
+            value = ChunkDataManager._process_output_queue.get(block)
             return value
         except:
             return None
 
-    def _chunk_data_generation_loop(inputQueue: multiprocessing.Queue, outputQueue: multiprocessing.Queue) -> None:
+    def _chunk_data_generation_loop(input_queue: multiprocessing.Queue, output_queue: multiprocessing.Queue) -> None:
         while True:
-            result: tuple = inputQueue.get()
+            result: tuple = input_queue.get()
             if result is None:
                 break
-            chunkCoords: tuple = result[0]
-            chunkBlockMap: list = result[1]
-            chunkData: ChunkData = ChunkData()
-            chunkData.BlockMap = TerrainGenerator.generate_block_map(chunkCoords) if chunkBlockMap is None else chunkBlockMap
-            chunkData.Mesh = TerrainGenerator.generate_mesh_data(chunkData.BlockMap)
-            outputQueue.put((chunkCoords, chunkData))
+            chunk_coords: tuple = result[0]
+            chunk_block_map: list = result[1]
+            chunk_data: ChunkData = ChunkData()
+            chunk_data.block_map = TerrainGenerator.generate_block_map(chunk_coords) if chunk_block_map is None else chunk_block_map
+            chunk_data.mesh = TerrainGenerator.generate_mesh_data(chunk_data.block_map)
+            output_queue.put((chunk_coords, chunk_data))

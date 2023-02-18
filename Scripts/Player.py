@@ -58,8 +58,8 @@ class Player(Entity):
 
         if self.camera_holder.transform.rotation.x > Math.radians(89.0):
             self.camera_holder.transform.rotation.x = Math.radians(89.0)
-        elif self.camera_holder.transform.rotation.x < Math.radians(-89.0):
-            self.camera_holder.transform.rotation.x = Math.radians(-89.0)
+        elif self.camera_holder.transform.rotation.x < Math.radians(-80.0):
+            self.camera_holder.transform.rotation.x = Math.radians(-80.0)
 
         self.transform.rotation.y -= Math.radians(mouse_delta.x * self.rotation_speed * ts.get_seconds())
         self.camera_holder.transform.rotation.y -= Math.radians(mouse_delta.x * self.rotation_speed * ts.get_seconds())

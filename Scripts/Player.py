@@ -7,40 +7,68 @@ import Utils
 class Player(Entity):
     jump_force: float
     movement_speed: float
+    rotation_speed: float
     block_break_range: float
     bounding_box: Vec3
+    camera_holder: Entity
     world: Entity
-    camera: Entity
+    camera_first_person: Entity
+    camera_third_person: Entity
     inventory: Entity
     toolbar: Entity
     pause_menu: Entity
+    _use_third_person_camera: bool
     _vertical_force: float
     _is_in_air: bool
-    _prev_mouse_pos: Vec2
     _velocity: Vec3
+    _prev_mouse_pos: Vec2
 
     def __init__(self, entity_id: int) -> None:
         super().__init__(entity_id)
         self.jump_force = 5.0
         self.movement_speed = 7.0
+        self.rotation_speed = 7.0
         self.block_break_range = 5.0
         self.bounding_box = Vec3(0.6, 1.8, 0.6)
+        self.camera_holder = Entity(0)
         self.world = Entity(0)
-        self.camera = Entity(0)
+        self.camera_first_person = Entity(0)
+        self.camera_third_person = Entity(0)
         self.toolbar = Entity(0)
+        self._use_third_person_camera = False
         self._vertical_force = 0.0
         self._is_in_air = True
         self._velocity = Vec3(0.0, 0.0, 0.0)
+        self._prev_mouse_pos = Vec2(0.0, 0.0)
+
+    def on_create(self) -> None:
+        self._prev_mouse_pos = Input.get_mouse_position()
+        Input.set_mouse_cursor(False)
 
     def on_update(self, ts: Timestep) -> None:
         if Input.is_cursor_enabled():
             return
+        
+        # Compute rotations
+        current_mouse_pos: Vec2 = Input.get_mouse_position()
+        mouse_delta: Vec2 = current_mouse_pos - self._prev_mouse_pos
+        Input.set_mouse_position(self._prev_mouse_pos)
+        
+        self.camera_holder.transform.rotation.x -= Math.radians(mouse_delta.y * self.rotation_speed * ts.get_seconds())
 
+        if self.camera_holder.transform.rotation.x > Math.radians(89.0):
+            self.camera_holder.transform.rotation.x = Math.radians(89.0)
+        elif self.camera_holder.transform.rotation.x < Math.radians(-89.0):
+            self.camera_holder.transform.rotation.x = Math.radians(-89.0)
+
+        self.transform.rotation.y -= Math.radians(mouse_delta.x * self.rotation_speed * ts.get_seconds())
+        self.camera_holder.transform.rotation.y -= Math.radians(mouse_delta.x * self.rotation_speed * ts.get_seconds())
+
+        # Compute directional movement
         if self._vertical_force > GRAVITY:
             self._vertical_force += GRAVITY * ts.get_seconds()
 
         self._velocity = Vec3(0.0, 0.0, 0.0)
-
         if Input.is_key_pressed(Key.W):
             self._velocity += self.transform.forward_vector * self.movement_speed * ts.get_seconds()
         elif Input.is_key_pressed(Key.S):
@@ -69,9 +97,9 @@ class Player(Entity):
                 self._velocity.y = 0.0
 
         self.transform.translation += self._velocity
-        self.camera.transform.translation = self.transform.translation
+        self.camera_holder.transform.translation = self.transform.translation
 
-    def on_event(self, event: Event):
+    def on_event(self, event: Event) -> None:
         if isinstance(event, MouseButtonPressedEvent):
             if event.mouse_button == MouseButton.Left:
                 if not Input.is_cursor_enabled():
@@ -83,6 +111,11 @@ class Player(Entity):
             if event.key == Key.Space:
                 if not Input.is_cursor_enabled():
                     self.jump()
+            elif event.key == Key.F2:
+                if not Input.is_cursor_enabled():
+                    self._use_third_person_camera = not self._use_third_person_camera
+                    self.camera_first_person.get_camera_component().is_primary_camera = not self._use_third_person_camera
+                    self.camera_third_person.get_camera_component().is_primary_camera = self._use_third_person_camera
 
     def jump(self) -> None:
         if not self._is_in_air:
@@ -91,7 +124,7 @@ class Player(Entity):
 
     def break_block(self) -> None:
         world: World = self.world.get_script()
-        intersected_block_coords: list = Utils.ray_cast(self.transform.translation, self.camera.transform.forward_vector, self.block_break_range)
+        intersected_block_coords: list = Utils.ray_cast(self.transform.translation, self.camera_holder.transform.forward_vector, self.block_break_range)
         for block_coords in intersected_block_coords:
             block_type: BlockType = world.get_block_at_position(block_coords)
             if block_type != BlockType.Air and block_type != BlockType.Water:
@@ -109,7 +142,7 @@ class Player(Entity):
 
     def place_block(self) -> None:
         world: World = self.world.get_script()
-        intersected_block_coords: list = Utils.ray_cast(self.transform.translation, self.camera.transform.forward_vector, self.block_break_range)
+        intersected_block_coords: list = Utils.ray_cast(self.transform.translation, self.camera_holder.transform.forward_vector, self.block_break_range)
         prev_coords: Vec3 = intersected_block_coords[0]
         for block_coords in intersected_block_coords:
             block_type: BlockType = world.get_block_at_position(block_coords)
